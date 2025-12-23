@@ -1,0 +1,58 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: tracking-service
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: tracking_db
+      username: couriersync
+      password: couriersync
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: tracking-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.couriersync.common.events"
+
+# WebSocket configuration
+websocket:
+  endpoint: /ws
+  allowed-origins: "*"
+
+# Logging
+logging:
+  level:
+    com.couriersync.tracking: DEBUG
+    org.springframework.web: DEBUG
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
