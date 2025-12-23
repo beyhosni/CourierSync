@@ -4,6 +4,7 @@ import deliveryReducer from './slices/deliverySlice';
 import trackingReducer from './slices/trackingSlice';
 import billingReducer from './slices/billingSlice';
 import notificationReducer from './slices/notificationSlice';
+import settingsReducer from './slices/settingsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     tracking: trackingReducer,
     billing: billingReducer,
     notification: notificationReducer,
+    settings: settingsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -2,8 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box } from '@mui/material';
-import { Provider } from 'react-redux';
-import { store } from './store';
 import { useAppSelector } from './hooks/redux';
 import Header from './components/Layout/Header';
 import Sidebar from './components/Layout/Sidebar';
@@ -43,39 +41,37 @@ function App() {
   }
 
   return (
-    <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
-          <Box sx={{ display: 'flex' }}>
-            <Header user={user} />
-            <Sidebar userRole={user?.role || ''} />
-            <Box
-              component="main"
-              sx={{
-                flexGrow: 1,
-                p: 3,
-                width: { sm: `calc(100% - 240px)` },
-                mt: 8,
-              }}
-            >
-              <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/deliveries" element={<Deliveries />} />
-                <Route path="/deliveries/:id" element={<DeliveryDetail />} />
-                <Route path="/drivers" element={<Drivers />} />
-                <Route path="/drivers/:id" element={<DriverDetail />} />
-                <Route path="/billing" element={<Billing />} />
-                <Route path="/billing/invoices/:id" element={<InvoiceDetail />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/tracking-3d" element={<Tracking3D />} />
-              </Routes>
-            </Box>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <Box sx={{ display: 'flex' }}>
+          <Header user={user} />
+          <Sidebar userRole={user?.role || ''} />
+          <Box
+            component="main"
+            sx={{
+              flexGrow: 1,
+              p: 3,
+              width: { sm: `calc(100% - 240px)` },
+              mt: 8,
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/deliveries" element={<Deliveries />} />
+              <Route path="/deliveries/:id" element={<DeliveryDetail />} />
+              <Route path="/drivers" element={<Drivers />} />
+              <Route path="/drivers/:id" element={<DriverDetail />} />
+              <Route path="/billing" element={<Billing />} />
+              <Route path="/billing/invoices/:id" element={<InvoiceDetail />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/tracking-3d" element={<Tracking3D />} />
+            </Routes>
           </Box>
-        </Router>
-      </ThemeProvider>
-    </Provider>
+        </Box>
+      </Router>
+    </ThemeProvider>
   );
 }
 
