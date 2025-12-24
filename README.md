@@ -67,9 +67,13 @@
 | **Billing** | PostgreSQL | Transactions financières, reporting |
 | **Cache** | Redis | Sessions, tokens, données temps réel |
 
-## 🛠️ Stack Technique
+## 🛠️ Technologies Utilisées
 
-### Backend
+### 🏗️ Architecture Globale
+
+![Microservices](https://img.shields.io/badge/Microservices-FF6B6B?style=for-the-badge&logo=microservices&logoColor=white) ![Event-Driven](https://img.shields.io/badge/Event%20Driven-4A4A4A?style=for-the-badge&logo=event-driven&logoColor=white) ![Cloud-Native](https://img.shields.io/badge/Cloud%20Native-00C9FF?style=for-the-badge&logo=cloud-native&logoColor=white)
+
+### 💻 Backend
 
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white) ![Spring Security](https://img.shields.io/badge/Spring%20Security-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white)
 
@@ -85,35 +89,49 @@
 - **Lombok** (boilerplate reduction)
 - **OpenAPI 3** (documentation)
 
-### Frontend
+### 🎨 Frontend
 
-![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white) ![RxJS](https://img.shields.io/badge/RxJS-B7178C?style=for-the-badge&logo=reactivex&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white) ![Redux](https://img.shields.io/badge/Redux-593D88?style=for-the-badge&logo=redux&logoColor=white) ![Three.js](https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=three.js&logoColor=white) ![Material-UI](https://img.shields.io/badge/Material--UI-0081CB?style=for-the-badge&logo=mui&logoColor=white)
 
-- **Angular 18**
-- **TypeScript 5**
-- **RxJS 7**
-- **Angular Material**
-- **WebSocket** (real-time tracking)
+- **React 18**
+- **TypeScript 4.9**
+- **Redux Toolkit** (gestion d'état)
+- **Material-UI** (composants UI)
+- **Socket.io** (communication en temps réel)
+- **Three.js** (visualisation 3D)
 
-### Infrastructure
+### 🗄️ Bases de Données
 
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) ![Kafka](https://img.shields.io/badge/Apache%20Kafka-231F20?style=for-the-badge&logo=apache-kafka&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+
+- **PostgreSQL 16** (données relationnelles)
+- **MongoDB 7** (données géospatiales et tracking)
+- **Redis 7** (cache et sessions)
+
+### 📡 Infrastructure & Communication
+
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) ![Kafka](https://img.shields.io/badge/Apache%20Kafka-231F20?style=for-the-badge&logo=apache-kafka&logoColor=white) ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
 
 - **Docker** + **Docker Compose**
 - **Kafka** (event streaming)
-- **PostgreSQL 16**
-- **MongoDB 7**
-- **Redis 7**
-- **Kubernetes** (ready)
+- **Kubernetes** (prêt pour déploiement)
 
-### Observabilité
+### 📊 Observabilité & Monitoring
 
-![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white) ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white) ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white) ![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-8A2BE2?style=for-the-badge&logo=opentelemetry&logoColor=white)
 
 - **Spring Boot Actuator**
-- **Prometheus** (metrics)
-- **Grafana** (visualization)
+- **Prometheus** (métriques)
+- **Grafana** (visualisation)
 - **OpenTelemetry** (distributed tracing - phase 2)
+
+### 🔐 Sécurité
+
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white) ![OAuth2](https://img.shields.io/badge/OAuth2-EB5424?style=for-the-badge&logo=oauth&logoColor=white) ![HIPAA](https://img.shields.io/badge/HIPAA-2A6BDD?style=for-the-badge&logo=hipaa&logoColor=white)
+
+- **OAuth2 Resource Server** : JWT avec signature RSA
+- **RBAC** : Role-Based Access Control
+- **Chiffrement des données** (conformité HIPAA)
 
 ## 🔐 Sécurité
 
