@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, Suspense } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Grid, Sparkles, Line } from '@react-three/drei';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { DeliveryPoint, DeliveryRoute } from '../../types/delivery';
 
 interface DeliveryMap3DProps {
@@ -11,221 +12,138 @@ interface DeliveryMap3DProps {
   onPointClick?: (point: DeliveryPoint) => void;
 }
 
-const DeliveryMap3D: React.FC<DeliveryMap3DProps> = ({
-  deliveryPoints,
-  deliveryRoutes,
-  currentDriverPosition,
-  viewMode = 'dispatcher',
-  onPointClick
-}) => {
-  const mountRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<THREE.Scene>();
-  const rendererRef = useRef<THREE.WebGLRenderer>();
-  const cameraRef = useRef<THREE.PerspectiveCamera>();
-  const controlsRef = useRef<OrbitControls>();
-  const frameRef = useRef<number>();
-  const [isLoaded, setIsLoaded] = useState(false);
+// Convert lat/lng to 3D coordinates (remains a utility function)
+const latLngToVector3 = (lat: number, lng: number, height: number = 0): [number, number, number] => {
+  const radius = 100; // Earth radius in our 3D world
+  const phi = (90 - lat) * (Math.PI / 180);
+  const theta = (lng + 180) * (Math.PI / 180);
 
-  // Convert lat/lng to 3D coordinates
-  const latLngToVector3 = (lat: number, lng: number, height: number = 0): THREE.Vector3 => {
-    const radius = 100; // Earth radius in our 3D world
-    const phi = (90 - lat) * (Math.PI / 180);
-    const theta = (lng + 180) * (Math.PI / 180);
+  const x = -(radius * Math.sin(phi) * Math.cos(theta));
+  const z = radius * Math.sin(phi) * Math.sin(theta);
+  const y = radius * Math.cos(phi);
 
-    const x = -(radius * Math.sin(phi) * Math.cos(theta));
-    const z = radius * Math.sin(phi) * Math.sin(theta);
-    const y = radius * Math.cos(phi);
+  return [x, y + height, z];
+};
 
-    return new THREE.Vector3(x, y + height, z);
-  };
 
-  // Initialize Three.js scene
-  useEffect(() => {
-    if (!mountRef.current) return;
-
-    // Scene setup
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x050505);
-    scene.fog = new THREE.Fog(0x050505, 10, 500);
-    sceneRef.current = scene;
-
-    // Camera setup
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      mountRef.current.clientWidth / mountRef.current.clientHeight,
-      0.1,
-      1000
+const DeliveryPointMarker: React.FC<{ point: DeliveryPoint; onClick?: (point: DeliveryPoint) => void }> = ({ point, onClick }) => {
+    const meshRef = useRef<THREE.Mesh>(null!);
+  
+    useFrame(({ clock }) => {
+      const pulseScale = 1 + Math.sin(clock.getElapsedTime() * 2) * 0.2;
+      if (meshRef.current) {
+        meshRef.current.scale.set(pulseScale, pulseScale, pulseScale);
+      }
+    });
+  
+    return (
+      <mesh
+        ref={meshRef}
+        position={latLngToVector3(point.lat, point.lng, point.type === 'pickup' ? 2 : 1)}
+        castShadow
+        receiveShadow
+        onClick={() => onClick?.(point)}
+      >
+        <sphereGeometry args={[1, 16, 16]} />
+        <meshPhongMaterial
+          color={point.type === 'pickup' ? '#00ff00' : '#ff0000'}
+          emissive={point.type === 'pickup' ? '#00cc00' : '#cc0000'}
+          emissiveIntensity={0.6}
+        />
+      </mesh>
     );
-    camera.position.set(0, 50, 100);
-    cameraRef.current = camera;
+};
 
-    // Renderer setup
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    mountRef.current.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
-
-    // Controls setup
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.minDistance = 10;
-    controls.maxDistance = 200;
-    controlsRef.current = controls;
-
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-    directionalLight.position.set(50, 100, 50);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.camera.near = 0.1;
-    directionalLight.shadow.camera.far = 500;
-    directionalLight.shadow.camera.left = -100;
-    directionalLight.shadow.camera.right = 100;
-    directionalLight.shadow.camera.top = 100;
-    directionalLight.shadow.camera.bottom = -100;
-    scene.add(directionalLight);
-
-    // Add a grid helper
-    const gridHelper = new THREE.GridHelper(200, 20, 0x444444, 0x222222);
-    gridHelper.position.y = -0.01;
-    scene.add(gridHelper);
-
-    // Animation loop
-    const animate = () => {
-      frameRef.current = requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    // Handle window resize
-    const handleResize = () => {
-      if (!mountRef.current) return;
-      camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
-    };
-    window.addEventListener('resize', handleResize);
-
-    setIsLoaded(true);
-
-    // Cleanup
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-      }
-      if (mountRef.current && renderer.domElement) {
-        mountRef.current.removeChild(renderer.domElement);
-      }
-      renderer.dispose();
-    };
-  }, []);
-
-  // Update delivery points
-  useEffect(() => {
-    if (!sceneRef.current || !isLoaded) return;
-
-    // Remove existing delivery points
-    const existingPoints = sceneRef.current.children.filter(child => child.userData.isDeliveryPoint);
-    existingPoints.forEach(point => sceneRef.current?.remove(point));
-
-    // Add delivery points
-    deliveryPoints.forEach((point, index) => {
-      const position = latLngToVector3(point.lat, point.lng, point.type === 'pickup' ? 2 : 1);
-
-      // Create point geometry
-      const geometry = new THREE.SphereGeometry(1, 16, 16);
-      const material = new THREE.MeshPhongMaterial({
-        color: point.type === 'pickup' ? 0x00ff00 : 0xff0000,
-        emissive: point.type === 'pickup' ? 0x00ff00 : 0xff0000,
-        emissiveIntensity: 0.3
-      });
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.position.copy(position);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      mesh.userData.isDeliveryPoint = true;
-      mesh.userData.pointData = point;
-
-      // Add pulsing animation
-      const pulseScale = 1 + Math.sin(Date.now() * 0.002 + index) * 0.2;
-      mesh.scale.set(pulseScale, pulseScale, pulseScale);
-
-      sceneRef.current.add(mesh);
-
-      // Add label
-      const labelGeometry = new THREE.BoxGeometry(4, 1, 1);
-      const labelMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      const label = new THREE.Mesh(labelGeometry, labelMaterial);
-      label.position.copy(position);
-      label.position.y += 2;
-      label.userData.isDeliveryPoint = true;
-      sceneRef.current.add(label);
+const DriverMarker: React.FC<{ position: { lat: number, lng: number } }> = ({ position }) => {
+    const meshRef = useRef<THREE.Mesh>(null!);
+  
+    useFrame(() => {
+        if (meshRef.current) {
+            meshRef.current.rotation.y += 0.01;
+        }
     });
-  }, [deliveryPoints, isLoaded]);
 
-  // Update delivery routes
-  useEffect(() => {
-    if (!sceneRef.current || !isLoaded) return;
+    return (
+      <mesh
+        ref={meshRef}
+        position={latLngToVector3(position.lat, position.lng, 3)}
+        castShadow
+        receiveShadow
+      >
+        <coneGeometry args={[1.2, 2.5, 8]} />
+        <meshPhongMaterial
+          color="#ffff00"
+          emissive="#ffff00"
+          emissiveIntensity={0.8}
+        />
+        <Sparkles count={20} scale={3} size={6} speed={0.4} />
+      </mesh>
+    );
+};
+  
+const RouteLine: React.FC<{ route: DeliveryRoute }> = ({ route }) => {
+    const points = route.points.map(p => new THREE.Vector3(...latLngToVector3(p.lat, p.lng, 0.5)));
+    
+    return <Line points={points} color="#0088ff" lineWidth={2} dashed={false} />;
+};
 
-    // Remove existing routes
-    const existingRoutes = sceneRef.current.children.filter(child => child.userData.isDeliveryRoute);
-    existingRoutes.forEach(route => sceneRef.current?.remove(route));
 
-    // Add delivery routes
-    deliveryRoutes.forEach(route => {
-      const points = route.points.map(point => latLngToVector3(point.lat, point.lng, 0.5));
+const Scene: React.FC<DeliveryMap3DProps> = ({ deliveryPoints, deliveryRoutes, currentDriverPosition, onPointClick }) => {
+    return (
+        <>
+            <ambientLight intensity={0.3} />
+            <directionalLight
+                position={[50, 100, 50]}
+                intensity={0.7}
+                castShadow
+                shadow-camera-near={0.1}
+                shadow-camera-far={500}
+                shadow-camera-left={-100}
+                shadow-camera-right={100}
+                shadow-camera-top={100}
+                shadow-camera-bottom={-100}
+            />
+            <Grid
+                position={[0, -0.01, 0]}
+                args={[200, 20]}
+                cellColor="#444444"
+                sectionColor="#222222"
+            />
+            
+            {deliveryPoints.map(point => (
+                <DeliveryPointMarker key={point.id} point={point} onClick={onPointClick} />
+            ))}
 
-      const geometry = new THREE.BufferGeometry().setFromPoints(points);
-      const material = new THREE.LineBasicMaterial({
-        color: 0x0088ff,
-        linewidth: 2,
-        opacity: 0.7,
-        transparent: true
-      });
+            {deliveryRoutes.map(route => (
+                <RouteLine key={route.id} route={route} />
+            ))}
 
-      const line = new THREE.Line(geometry, material);
-      line.userData.isDeliveryRoute = true;
-      sceneRef.current.add(line);
-    });
-  }, [deliveryRoutes, isLoaded]);
+            {currentDriverPosition && <DriverMarker position={currentDriverPosition} />}
+        </>
+    );
+}
 
-  // Update driver position
-  useEffect(() => {
-    if (!sceneRef.current || !isLoaded || !currentDriverPosition) return;
-
-    // Remove existing driver marker
-    const existingDriver = sceneRef.current.children.find(child => child.userData.isDriver);
-    if (existingDriver) {
-      sceneRef.current.remove(existingDriver);
-    }
-
-    // Add driver marker
-    const position = latLngToVector3(currentDriverPosition.lat, currentDriverPosition.lng, 3);
-
-    const geometry = new THREE.ConeGeometry(1, 2, 8);
-    const material = new THREE.MeshPhongMaterial({
-      color: 0xffff00,
-      emissive: 0xffff00,
-      emissiveIntensity: 0.3
-    });
-    const driverMesh = new THREE.Mesh(geometry, material);
-    driverMesh.position.copy(position);
-    driverMesh.castShadow = true;
-    driverMesh.receiveShadow = true;
-    driverMesh.userData.isDriver = true;
-
-    sceneRef.current.add(driverMesh);
-  }, [currentDriverPosition, isLoaded]);
-
-  return <div ref={mountRef} className="w-full h-full" />;
+const DeliveryMap3D: React.FC<DeliveryMap3DProps> = (props) => {
+  return (
+    <div className="w-full h-full">
+        <Canvas
+            shadows
+            camera={{ position: [0, 50, 120], fov: 75 }}
+        >
+            <color attach="background" args={[0x050505]} />
+            <fog attach="fog" args={[0x050505, 10, 500]} />
+            <Suspense fallback={null}>
+                <Scene {...props} />
+            </Suspense>
+            <OrbitControls
+                enableDamping
+                dampingFactor={0.05}
+                minDistance={10}
+                maxDistance={200}
+            />
+        </Canvas>
+    </div>
+  );
 };
 
 export default DeliveryMap3D;
