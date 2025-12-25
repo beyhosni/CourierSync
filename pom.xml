@@ -14,8 +14,6 @@
 
     <modules>
         <module>backend</module>
-        <module>frontend</module>
-        <module>infrastructure</module>
     </modules>
 
     <properties>

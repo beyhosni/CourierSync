@@ -2,6 +2,7 @@ package com.couriersync.dispatch.consumer;
 
 import com.couriersync.common.events.DeliveryEvent;
 import com.couriersync.common.events.LocationUpdateEvent;
+import com.couriersync.dispatch.model.DeliveryOrder;
 import com.couriersync.dispatch.service.DeliveryOrderService;
 import com.couriersync.dispatch.service.DriverService;
 import lombok.RequiredArgsConstructor;

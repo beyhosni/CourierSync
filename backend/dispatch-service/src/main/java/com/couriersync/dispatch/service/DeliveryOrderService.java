@@ -1,6 +1,7 @@
 package com.couriersync.dispatch.service;
 
 import com.couriersync.dispatch.model.DeliveryOrder;
+import com.couriersync.dispatch.model.DeliveryStatusHistory;
 import com.couriersync.dispatch.repository.DeliveryOrderRepository;
 import com.couriersync.dispatch.repository.DeliveryStatusHistoryRepository;
 import lombok.RequiredArgsConstructor;
