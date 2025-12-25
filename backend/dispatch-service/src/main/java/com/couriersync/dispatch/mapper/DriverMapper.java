@@ -12,7 +12,6 @@ import java.util.List;
 public interface DriverMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "status", ignore = true)
     @Mapping(target = "currentLatitude", ignore = true)
     @Mapping(target = "currentLongitude", ignore = true)
     @Mapping(target = "lastLocationUpdate", ignore = true)

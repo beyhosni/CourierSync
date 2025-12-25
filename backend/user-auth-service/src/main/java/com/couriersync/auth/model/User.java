@@ -68,6 +68,11 @@ public class User implements UserDetails {
     }
 
     @Override
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    @Override
     public String getUsername() {
         return email;
     }

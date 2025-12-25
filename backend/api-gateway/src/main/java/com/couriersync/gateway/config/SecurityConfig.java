@@ -8,9 +8,17 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -31,7 +39,10 @@ public class SecurityConfig {
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtAuthenticationConverter()))
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtToken -> {
+                            Collection<GrantedAuthority> authorities = extractAuthorities(jwtToken);
+                            return Mono.just(new JwtAuthenticationToken(jwtToken, authorities));
+                        }))
                 )
                 .build();
     }
@@ -48,5 +59,29 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", corsConfig);
 
         return new CorsWebFilter(source);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
+        Map<String, Object> claims = jwt.getClaims();
+
+        // Extract roles from the "roles" claim if present
+        if (claims.containsKey("roles")) {
+            List<String> roles = (List<String>) claims.get("roles");
+            return roles.stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                    .collect(Collectors.toList());
+        }
+
+        // Extract authorities from the "authorities" claim if present
+        if (claims.containsKey("authorities")) {
+            List<String> authorities = (List<String>) claims.get("authorities");
+            return authorities.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+        }
+
+        // Default role if no authorities are found
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 }

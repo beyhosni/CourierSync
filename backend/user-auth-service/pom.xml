@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>user-auth-service</artifactId>
-    <name>CourierSync User & Auth Service</name>
+    <name>CourierSync User &amp; Auth Service</name>
     <description>User management and authentication service</description>
 
     <dependencies>
@@ -148,7 +148,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-.
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>

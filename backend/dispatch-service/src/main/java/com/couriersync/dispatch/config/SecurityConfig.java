@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                 .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
             )
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtAuthenticationConverter())));
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
         return http.build();
     }
